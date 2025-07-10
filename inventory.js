@@ -486,36 +486,36 @@ class InventoryManager {
     }
     
     handleAddProduct(data) {
-        // Validaciones
-        if (parseFloat(data.price) <= 0) {
-            window.uiManager.showNotification('El precio debe ser mayor a 0', 'error');
-            return;
-        }
-        
-        if (parseInt(data.stock) < 0) {
-            window.uiManager.showNotification('El stock no puede ser negativo', 'error');
-            return;
-        }
-        
-        // Crear producto
-        const productData = {
-            ...data,
-            price: parseFloat(data.price),
-            stock: parseInt(data.stock),
-            emoji: data.emoji || '📦'
-        };
-        
-        const product = window.dataManager.addProduct(productData);
-        if (product) {
-            window.uiManager.showNotification('Producto agregado exitosamente', 'success');
-            this.loadInventory();
-            window.uiManager.closeModal();
-            
-            // Actualizar grid de productos en caja si está disponible
-            if (window.cashRegister) {
-                window.cashRegister.loadProductsGrid();
+            // Validaciones
+            if (parseFloat(data.price) <= 0) {
+                window.uiManager.showNotification('El precio debe ser mayor a 0', 'error');
+                return;
             }
-        }
+            
+            if (parseInt(data.stock) < 0) {
+                window.uiManager.showNotification('El stock no puede ser negativo', 'error');
+                return;
+            }
+            
+            // Crear producto
+            const productData = {
+                ...data,
+                price: parseFloat(data.price),
+                stock: parseInt(data.stock),
+                emoji: data.emoji || '📦'
+            };
+            
+            const product = window.dataManager.addProduct(productData);
+            if (product) {
+                window.uiManager.showNotification('Producto agregado exitosamente', 'success');
+                this.loadInventory();
+                window.uiManager.closeModal();
+                
+                // Actualizar grid de productos en caja si está disponible
+                if (window.cashRegister) {
+                    window.cashRegister.loadProductsGrid();
+                }
+            }
     }
     
     editProduct(id) {
@@ -584,35 +584,35 @@ class InventoryManager {
     }
     
     handleEditProduct(id, data) {
-        // Validaciones
-        if (parseFloat(data.price) <= 0) {
-            window.uiManager.showNotification('El precio debe ser mayor a 0', 'error');
-            return;
-        }
-        
-        if (parseInt(data.stock) < 0) {
-            window.uiManager.showNotification('El stock no puede ser negativo', 'error');
-            return;
-        }
-        
-        // Actualizar producto
-        const productData = {
-            ...data,
-            price: parseFloat(data.price),
-            stock: parseInt(data.stock)
-        };
-        
-        const updated = window.dataManager.updateProduct(id, productData);
-        if (updated) {
-            window.uiManager.showNotification('Producto actualizado exitosamente', 'success');
-            this.loadInventory();
-            window.uiManager.closeModal();
-            
-            // Actualizar grid de productos en caja si está disponible
-            if (window.cashRegister) {
-                window.cashRegister.loadProductsGrid();
+            // Validaciones
+            if (parseFloat(data.price) <= 0) {
+                window.uiManager.showNotification('El precio debe ser mayor a 0', 'error');
+                return;
             }
-        }
+            
+            if (parseInt(data.stock) < 0) {
+                window.uiManager.showNotification('El stock no puede ser negativo', 'error');
+                return;
+            }
+            
+            // Actualizar producto
+            const productData = {
+                ...data,
+                price: parseFloat(data.price),
+                stock: parseInt(data.stock)
+            };
+            
+            const updated = window.dataManager.updateProduct(id, productData);
+            if (updated) {
+                window.uiManager.showNotification('Producto actualizado exitosamente', 'success');
+                this.loadInventory();
+                window.uiManager.closeModal();
+                
+                // Actualizar grid de productos en caja si está disponible
+                if (window.cashRegister) {
+                    window.cashRegister.loadProductsGrid();
+                }
+            }
     }
     
     deleteProduct(id) {
