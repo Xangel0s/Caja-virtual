@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caja Virtual - Sistema de Punto de Venta</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Pantalla de Login -->
+        <div id="login-screen" class="screen active">
+            <div class="login-container">
+                <h1>🏪 Caja Virtual</h1>
+                <div class="login-form">
+                    <h2>Iniciar Sesión</h2>
+                    <input type="text" id="operator-name" placeholder="Nombre del operario" autocomplete="off">
+                    <datalist id="operators-list"></datalist>
+                    <button id="login-btn">Ingresar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla Principal -->
+        <div id="main-screen" class="screen">
+            <!-- Header con menú hamburguesa -->
+            <header class="header">
+                <div class="header-content">
+                    <button id="menu-toggle" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>🏪 Caja Virtual</h1>
+                    <div class="operator-info">
+                        <span id="current-operator"></span>
+                        <span id="current-date"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Menú lateral -->
+            <nav id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Menú Principal</h3>
+                    <button id="close-sidebar" class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <ul class="sidebar-menu">
+                    <li><a href="#" data-section="cash-register" class="menu-item active">
+                        <i class="fas fa-cash-register"></i> Caja
+                    </a></li>
+                    <li><a href="#" data-section="inventory" class="menu-item">
+                        <i class="fas fa-boxes"></i> Inventario
+                    </a></li>
+                    <li><a href="#" data-section="sales-history" class="menu-item">
+                        <i class="fas fa-history"></i> Historial de Ventas
+                    </a></li>
+                    <li><a href="#" data-section="closures-history" class="menu-item">
+                        <i class="fas fa-book"></i> Historial de Cierres
+                    </a></li>
+                    <li><a href="#" data-section="staff-management" class="menu-item">
+                        <i class="fas fa-users"></i> Personal
+                    </a></li>
+                    <li><a href="#" id="logout-btn" class="menu-item logout">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </a></li>
+                </ul>
+            </nav>
+
+            <!-- Contenido principal -->
+            <main class="main-content">
+                
+                <!-- Sección de Caja -->
+                <section id="cash-register-section" class="section active">
+                    <!-- Estado de la caja -->
+                    <div id="cash-status" class="cash-status-card">
+                        <div class="status-info">
+                            <h2 id="cash-status-title">🔒 Caja Cerrada</h2>
+                            <p id="cash-operator">Sin operador</p>
+                        </div>
+                        <div class="status-amounts">
+                            <div class="amount-item">
+                                <span class="amount-label">💵 Efectivo</span>
+                                <span id="cash-amount">$0.00</span>
+                            </div>
+                            <div class="amount-item">
+                                <span class="amount-label">📱 Digital</span>
+                                <span id="digital-amount">$0.00</span>
+                            </div>
+                            <div class="amount-total">
+                                <span class="total-label">Total:</span>
+                                <span id="total-amount">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel de apertura de caja -->
+                    <div id="cash-opening-panel" class="cash-panel">
+                        <h3>🔓 Abrir Caja</h3>
+                        <div class="opening-form">
+                            <div class="input-group">
+                                <label>💰 Monto inicial en efectivo</label>
+                                <input type="number" id="opening-amount" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                            <div class="input-group">
+                                <label>📝 Notas (opcional)</label>
+                                <input type="text" id="opening-notes" placeholder="Ej: Billetes, monedas, etc.">
+                            </div>
+                            <button id="open-cash-btn" class="action-btn primary large">
+                                ✅ Abrir Caja
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Panel de venta activa -->
+                    <div id="cash-active-panel" class="cash-panel" style="display: none;">
+                        
+                        <!-- Botones de acción rápida -->
+                        <div class="quick-actions">
+                            <button id="quick-sale-btn" class="quick-btn active" data-mode="quick">
+                                ⚡ Venta Rápida
+                            </button>
+                            <button id="product-sale-btn" class="quick-btn" data-mode="products">
+                                📦 Por Productos
+                            </button>
+                        </div>
+
+                        <!-- Modo venta rápida -->
+                        <div id="quick-sale-mode" class="sale-mode">
+                            <div class="sale-input-container">
+                                <div class="input-group">
+                                    <label>🏷️ Descripción</label>
+                                    <input type="text" id="quick-description" placeholder="Ej: Café, Galletas, etc." class="large-input">
+                                </div>
+                                <div class="input-group">
+                                    <label>💲 Precio</label>
+                                    <input type="number" id="quick-price" placeholder="0.00" step="0.01" min="0" class="large-input">
+                                </div>
+                                <button id="add-quick-sale-btn" class="action-btn success large">
+                                    ➕ Agregar al Carrito
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Modo venta por productos -->
+                        <div id="product-sale-mode" class="sale-mode" style="display: none;">
+                            <!-- Filtros de categorías -->
+                            <div class="category-filters">
+                                <button class="category-filter-btn active" data-category="all">
+                                    <span>🌟</span> Todos
+                                </button>
+                                <button class="category-filter-btn" data-category="bebidas">
+                                    <span>🥤</span> Bebidas
+                                </button>
+                                <button class="category-filter-btn" data-category="comidas">
+                                    <span>🍕</span> Comidas
+                                </button>
+                                <button class="category-filter-btn" data-category="otros">
+                                    <span>📦</span> Otros
+                                </button>
+                            </div>
+                            
+                            <!-- Botón para agregar producto rápido -->
+                            <div class="quick-add-product">
+                                <button id="add-product-quick-btn" class="action-btn success">
+                                    <i class="fas fa-plus"></i> Agregar Producto Rápido
+                                </button>
+                            </div>
+                            
+                            <div class="products-grid" id="products-quick-grid">
+                                <!-- Productos se cargarán aquí -->
+                            </div>
+                        </div>
+
+                        <!-- Carrito de ventas -->
+                        <div id="sales-cart" class="sales-cart">
+                            <div class="cart-header">
+                                <h4>🛒 Venta Actual</h4>
+                                <button id="clear-cart-btn" class="clear-btn">🗑️ Limpiar</button>
+                            </div>
+                            <div id="cart-items" class="cart-items">
+                                <div class="empty-cart">
+                                    <p>🛒 Carrito vacío</p>
+                                </div>
+                            </div>
+                            <div class="cart-total">
+                                <div class="total-display">
+                                    <span>Total a Cobrar:</span>
+                                    <span id="cart-total-amount">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Métodos de pago -->
+                        <div id="payment-methods" class="payment-methods" style="display: none;">
+                            <h4>💳 Selecciona Método de Pago</h4>
+                            <div class="payment-buttons">
+                                <button class="payment-btn" id="cash-payment-btn" data-method="cash">
+                                    <div class="payment-icon">💵</div>
+                                    <div class="payment-text">
+                                        <div class="payment-name">Efectivo</div>
+                                        <div class="payment-desc">Billetes y monedas</div>
+                                    </div>
+                                </button>
+                                <button class="payment-btn" id="yape-payment-btn" data-method="yape">
+                                    <div class="payment-icon">📱</div>
+                                    <div class="payment-text">
+                                        <div class="payment-name">Yape</div>
+                                        <div class="payment-desc">Pago digital</div>
+                                    </div>
+                                </button>
+                                <button class="payment-btn" id="card-payment-btn" data-method="card">
+                                    <div class="payment-icon">💳</div>
+                                    <div class="payment-text">
+                                        <div class="payment-name">Tarjeta</div>
+                                        <div class="payment-desc">Débito/Crédito</div>
+                                    </div>
+                                </button>
+                                <button class="payment-btn" id="transfer-payment-btn" data-method="transfer">
+                                    <div class="payment-icon">🏦</div>
+                                    <div class="payment-text">
+                                        <div class="payment-name">Transferencia</div>
+                                        <div class="payment-desc">Banco a banco</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Botones de finalización -->
+                        <div class="sale-actions">
+                            <button id="show-payment-btn" class="action-btn primary large" disabled>
+                                💳 Continuar a Pago
+                            </button>
+                            <button id="cancel-sale-btn" class="action-btn secondary large" style="display: none;">
+                                ❌ Cancelar Venta
+                            </button>
+                        </div>
+
+                        <!-- Sección de montos separados -->
+                        <div class="cash-summary">
+                            <div class="summary-section">
+                                <h4>💵 Efectivo en Caja</h4>
+                                <div class="amount-display" id="cash-summary-amount">$0.00</div>
+                                <div class="amount-actions">
+                                    <button id="cash-in-btn" class="amount-btn success">
+                                        ⬆️ Entrada
+                                    </button>
+                                    <button id="cash-out-btn" class="amount-btn danger">
+                                        ⬇️ Salida
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-section">
+                                <h4>📱 Pagos Digitales</h4>
+                                <div class="amount-display" id="digital-summary-amount">$0.00</div>
+                                <div class="amount-note">
+                                    <small>Yape, tarjetas, transferencias</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de cerrar caja -->
+                        <div class="close-section">
+                            <button id="close-cash-btn" class="action-btn danger large">
+                                🔒 Cerrar Caja
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Historial rápido -->
+                    <div id="recent-sales" class="recent-sales" style="display: none;">
+                        <h4>📋 Últimas Ventas</h4>
+                        <div id="recent-sales-list" class="recent-list">
+                            <!-- Ventas recientes se cargarán aquí -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección de Inventario -->
+                <section id="inventory-section" class="section">
+                    <div class="section-header">
+                        <h2>📦 Gestión de Inventario</h2>
+                        <button id="add-product-btn" class="action-btn primary">
+                            <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                    </div>
+                    
+                    <!-- Filtros y búsqueda de inventario -->
+                    <div class="inventory-filters">
+                        <div class="inventory-search">
+                            <input type="text" id="inventory-search" placeholder="Buscar productos..." autocomplete="off">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        
+                        <div class="category-filters">
+                            <button class="category-filter-btn active" data-category="all">
+                                <span>🌟</span> Todos
+                            </button>
+                            <button class="category-filter-btn" data-category="bebidas">
+                                <span>🥤</span> Bebidas
+                            </button>
+                            <button class="category-filter-btn" data-category="comidas">
+                                <span>🍕</span> Comidas
+                            </button>
+                            <button class="category-filter-btn" data-category="otros">
+                                <span>📦</span> Otros
+                            </button>
+                            <button class="category-filter-btn" data-category="low-stock">
+                                <span>⚠️</span> Stock Bajo
+                            </button>
+                            <button class="category-filter-btn" data-category="out-of-stock">
+                                <span>🚫</span> Sin Stock
+                            </button>
+                        </div>
+                        
+                        <div class="inventory-sort">
+                            <select id="sort-inventory">
+                                <option value="name-asc">Nombre (A-Z)</option>
+                                <option value="name-desc">Nombre (Z-A)</option>
+                                <option value="price-asc">Precio (Menor a Mayor)</option>
+                                <option value="price-desc">Precio (Mayor a Menor)</option>
+                                <option value="stock-asc">Stock (Menor a Mayor)</option>
+                                <option value="stock-desc">Stock (Mayor a Menor)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="inventory-list" id="inventory-list">
+                        <!-- Productos se cargarán dinámicamente -->
+                    </div>
+                </section>
+
+                <!-- Sección de Historial de Ventas -->
+                <section id="sales-history-section" class="section">
+                    <div class="section-header">
+                        <h2>📊 Historial de Ventas</h2>
+                        <div class="sales-actions">
+                            <button id="export-sales-csv-btn" class="action-btn secondary">
+                                <i class="fas fa-file-csv"></i> Exportar CSV
+                            </button>
+                            <button id="export-sales-pdf-btn" class="action-btn primary">
+                                <i class="fas fa-file-pdf"></i> Exportar PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="sales-filters">
+                        <div class="filter-group">
+                            <div class="date-range-filter">
+                                <label>Desde:</label>
+                                <input type="date" id="sales-date-from">
+                                <label>Hasta:</label>
+                                <input type="date" id="sales-date-to">
+                            </div>
+                            <div class="operator-filter">
+                                <label>Operario:</label>
+                                <select id="sales-operator-filter">
+                                    <option value="">Todos los operarios</option>
+                                </select>
+                            </div>
+                            <div class="product-filter">
+                                <label>Producto:</label>
+                                <select id="sales-product-filter">
+                                    <option value="">Todos los productos</option>
+                                </select>
+                            </div>
+                            <div class="amount-filter">
+                                <label>Monto mínimo:</label>
+                                <input type="number" id="sales-min-amount" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="filter-actions">
+                            <button id="apply-sales-filters-btn" class="action-btn primary">
+                                <i class="fas fa-filter"></i> Aplicar Filtros
+                            </button>
+                            <button id="clear-sales-filters-btn" class="action-btn secondary">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="sales-summary">
+                        <div class="summary-card">
+                            <h4>Total de Ventas</h4>
+                            <div class="summary-value" id="total-sales-count">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Monto Total</h4>
+                            <div class="summary-value" id="total-sales-amount">$0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Ticket Promedio</h4>
+                            <div class="summary-value" id="average-ticket">$0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Productos Vendidos</h4>
+                            <div class="summary-value" id="total-products-sold">0</div>
+                        </div>
+                    </div>
+
+                    <div class="sales-analytics">
+                        <div class="analytics-tabs">
+                            <button class="analytics-tab-btn active" data-tab="list">Lista de Ventas</button>
+                            <button class="analytics-tab-btn" data-tab="products">Por Producto</button>
+                            <button class="analytics-tab-btn" data-tab="operators">Por Operario</button>
+                            <button class="analytics-tab-btn" data-tab="charts">Gráficos</button>
+                        </div>
+
+                        <!-- Lista de Ventas -->
+                        <div id="list-tab" class="analytics-tab-content active">
+                            <div class="sales-list-header">
+                                <div class="search-box">
+                                    <input type="text" id="sales-search" placeholder="Buscar ventas...">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div class="sort-options">
+                                    <select id="sales-sort">
+                                        <option value="newest">Más recientes</option>
+                                        <option value="oldest">Más antiguas</option>
+                                        <option value="highest">Mayor monto</option>
+                                        <option value="lowest">Menor monto</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="sales-list" class="sales-list"></div>
+                            <div class="pagination">
+                                <button id="prev-page-btn" class="action-btn secondary" disabled>Anterior</button>
+                                <span id="page-info">Página 1 de 1</span>
+                                <button id="next-page-btn" class="action-btn secondary" disabled>Siguiente</button>
+                            </div>
+                        </div>
+
+                        <!-- Por Producto -->
+                        <div id="products-tab" class="analytics-tab-content">
+                            <div id="product-sales-chart" class="chart-container">
+                                <canvas id="product-chart"></canvas>
+                            </div>
+                            <div id="product-sales-table" class="data-table"></div>
+                        </div>
+
+                        <!-- Por Operario -->
+                        <div id="operators-tab" class="analytics-tab-content">
+                            <div id="operator-sales-chart" class="chart-container">
+                                <canvas id="operator-chart"></canvas>
+                            </div>
+                            <div id="operator-sales-table" class="data-table"></div>
+                        </div>
+
+                        <!-- Gráficos -->
+                        <div id="charts-tab" class="analytics-tab-content">
+                            <div class="charts-grid">
+                                <div class="chart-item">
+                                    <h4>Ventas por Día</h4>
+                                    <canvas id="daily-sales-chart"></canvas>
+                                </div>
+                                <div class="chart-item">
+                                    <h4>Ventas por Hora</h4>
+                                    <canvas id="hourly-sales-chart"></canvas>
+                                </div>
+                                <div class="chart-item">
+                                    <h4>Top 5 Productos</h4>
+                                    <canvas id="top-products-chart"></canvas>
+                                </div>
+                                <div class="chart-item">
+                                    <h4>Evolución de Ventas</h4>
+                                    <canvas id="sales-trend-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección de Historial de Cierres -->
+                <section id="closures-history-section" class="section">
+                    <div class="section-header">
+                        <h2>📚 Historial de Cierres</h2>
+                    </div>
+                    <div id="closures-list" class="closures-list">
+                        <!-- Cierres se cargarán dinámicamente -->
+                    </div>
+                </section>
+
+                <!-- Sección de Personal -->
+                <section id="staff-management-section" class="section">
+                    <div class="section-header">
+                        <h2>👥 Administración de Personal</h2>
+                        <button id="add-staff-btn" class="action-btn primary">
+                            <i class="fas fa-user-plus"></i> Agregar Operario
+                        </button>
+                    </div>
+                    <div id="staff-list" class="staff-list">
+                        <!-- Personal se cargará dinámicamente -->
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modales -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal" id="generic-modal">
+            <div class="modal-header">
+                <h3 id="modal-title"></h3>
+                <button id="close-modal" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-footer" id="modal-footer"></div>
+        </div>
+    </div>
+
+    <!-- Selector de Emojis -->
+    <div id="emoji-selector" class="emoji-selector">
+        <div class="emoji-selector-header">
+            <h4>Selecciona un emoji</h4>
+            <button class="emoji-selector-close" onclick="closeEmojiSelector()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="emoji-selector-search">
+            <input type="text" id="emoji-search" placeholder="Buscar emoji..." autocomplete="off">
+            <i class="fas fa-search"></i>
+        </div>
+        <div class="emoji-selector-categories">
+            <button class="emoji-category-btn active" data-category="food">🍎 Comida</button>
+            <button class="emoji-category-btn" data-category="drinks">🥤 Bebidas</button>
+            <button class="emoji-category-btn" data-category="objects">📦 Objetos</button>
+            <button class="emoji-category-btn" data-category="symbols">⭐ Símbolos</button>
+            <button class="emoji-category-btn" data-category="all">🌟 Todos</button>
+        </div>
+        <div class="emoji-selector-grid" id="emoji-grid">
+            <!-- Emojis se cargarán aquí -->
+        </div>
+    </div>
+
+    <!-- Modal de confirmación de venta -->
+    <div id="sale-confirmation-modal" class="modal-overlay">
+        <div class="modal confirm success">
+            <div class="modal-header">
+                <h3>💳 Confirmar Venta</h3>
+                <button class="close-btn" onclick="closeSaleConfirmModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon">🛒</div>
+                <div class="confirm-title">¿Confirmar esta venta?</div>
+                <div class="confirm-message">
+                    Revisa los detalles de la venta antes de confirmar. Esta acción no se puede deshacer.
+                </div>
+                
+                <div class="confirm-details">
+                    <div class="detail-row">
+                        <span class="detail-label">🛒 Productos:</span>
+                        <span class="detail-value" id="modal-items-count">0</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">💳 Método de pago:</span>
+                        <span class="detail-value" id="modal-payment-method">-</span>
+                    </div>
+                    <div class="detail-row total-row">
+                        <span class="detail-label">💰 Total:</span>
+                        <span class="detail-value" id="modal-total-amount">$0.00</span>
+                    </div>
+                </div>
+                
+                <!-- Solo para efectivo: calcular cambio -->
+                <div id="cash-payment-section" style="display: none;">
+                    <div class="input-group">
+                        <label>💵 Efectivo recibido</label>
+                        <input type="number" id="cash-received" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="change-display">
+                        <span>💸 Cambio:</span>
+                        <span id="change-amount">$0.00</span>
+                    </div>
+                </div>
+                
+                <!-- Para pagos digitales -->
+                <div id="digital-payment-section" style="display: none;">
+                    <div class="digital-info">
+                        <p>✅ Confirma que se ha completado el pago digital</p>
+                        <div class="input-group">
+                            <label>📱 Referencia/Comprobante (opcional)</label>
+                            <input type="text" id="payment-reference" placeholder="Ej: Núm. operación, código">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="cancel-sale-modal-btn" class="action-btn secondary">
+                    ❌ Cancelar
+                </button>
+                <button id="confirm-sale-btn" class="action-btn success">
+                    ✅ Confirmar Venta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de movimiento de efectivo -->
+    <div id="cash-movement-modal" class="modal-overlay">
+        <div class="modal warning">
+            <div class="modal-header">
+                <h3 id="movement-modal-title">💰 Movimiento de Efectivo</h3>
+                <button class="close-btn" onclick="closeCashMovementModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>💲 Monto</label>
+                    <input type="number" id="movement-amount" placeholder="0.00" step="0.01" min="0">
+                    <div class="help-text">Ingresa el monto del movimiento de efectivo</div>
+                </div>
+                <div class="input-group">
+                    <label>📝 Concepto</label>
+                    <textarea id="movement-concept" placeholder="Ej: Cambio para clientes, gastos operativos, etc." rows="3"></textarea>
+                    <div class="help-text">Describe el motivo del movimiento</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-movement-btn" class="action-btn secondary">
+                    ❌ Cancelar
+                </button>
+                <button id="confirm-movement-btn" class="action-btn primary">
+                    ✅ Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de cierre de caja -->
+    <div id="close-cash-modal" class="modal-overlay">
+        <div class="modal danger" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>🔒 Cerrar Caja</h3>
+                <button class="close-btn" onclick="closeCloseCashModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Resumen del día -->
+                <div class="closure-summary">
+                    <div class="summary-header">
+                        <h4>📊 Resumen del Día</h4>
+                        <div class="operator-info">
+                            <span>👤 Operador: <strong id="close-operator-name">-</strong></span>
+                            <span>🕐 Apertura: <strong id="close-opening-time">-</strong></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Montos separados -->
+                    <div class="amounts-grid">
+                        <div class="amount-section">
+                            <h5>💵 Efectivo</h5>
+                            <div class="amount-details">
+                                <div class="detail-row">
+                                    <span>Inicial:</span>
+                                    <span id="close-initial-cash">$0.00</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Ventas:</span>
+                                    <span id="close-cash-sales">$0.00</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Entradas:</span>
+                                    <span id="close-cash-in">$0.00</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Salidas:</span>
+                                    <span id="close-cash-out">$0.00</span>
+                                </div>
+                                <div class="detail-row total">
+                                    <span>Total esperado:</span>
+                                    <span id="close-expected-cash">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="amount-section">
+                            <h5>📱 Pagos Digitales</h5>
+                            <div class="amount-details">
+                                <div class="detail-row">
+                                    <span>Yape:</span>
+                                    <span id="close-yape-total">$0.00</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Tarjetas:</span>
+                                    <span id="close-card-total">$0.00</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Transferencias:</span>
+                                    <span id="close-transfer-total">$0.00</span>
+                                </div>
+                                <div class="detail-row total">
+                                    <span>Total digital:</span>
+                                    <span id="close-total-digital">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Total general -->
+                    <div class="grand-total">
+                        <div class="total-row">
+                            <span>🛒 Total ventas del día:</span>
+                            <span id="close-total-sales">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Conteo manual de efectivo -->
+                <div class="manual-count">
+                    <h4>💵 Conteo Manual de Efectivo</h4>
+                    <div class="input-group">
+                        <label>🔢 Efectivo contado en caja</label>
+                        <input type="number" id="manual-cash-count" placeholder="0.00" step="0.01" min="0">
+                        <div class="help-text">Cuenta físicamente todo el efectivo que hay en la caja</div>
+                    </div>
+                    <div id="cash-difference" class="difference-display">
+                        <span class="diff-label">Diferencia:</span>
+                        <span id="diff-amount" class="diff-value">$0.00</span>
+                    </div>
+                </div>
+                
+                <!-- Notas de cierre -->
+                <div class="input-group">
+                    <label>📝 Notas de cierre (opcional)</label>
+                    <textarea id="closing-notes" placeholder="Observaciones, incidencias, etc." rows="3"></textarea>
+                    <div class="help-text">Anota cualquier incidencia o comentario importante del día</div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="cancel-close-btn" class="action-btn secondary">
+                    ❌ Cancelar
+                </button>
+                <button id="confirm-close-btn" class="action-btn danger">
+                    🔒 Confirmar Cierre
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="dataManager.js"></script>
+    <script src="auth.js"></script>
+    <script src="emojiSelector.js"></script>
+    <script src="inventory.js"></script>
+    <script src="cashRegister.js"></script>
+    <script src="salesHistory.js"></script>
+    <script src="reports.js"></script>
+    <script src="ui.js"></script>
+    <script src="main.js"></script>
+    
+    <!-- Scripts de arreglos específicos -->
+    <script src="fix_sidebar.js"></script>
+    <script src="fix_modal_buttons.js"></script>
+</body>
+</html> 
