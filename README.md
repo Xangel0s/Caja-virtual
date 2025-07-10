@@ -1,339 +1,182 @@
-# 🏪 Caja Virtual - Sistema de Punto de Venta
+# 🏪 Caja Virtual - Sistema POS Moderno
 
-Una aplicación web completa para la gestión de una caja virtual/punto de venta, desarrollada con HTML, CSS y JavaScript puro. Ideal para pequeños negocios, tiendas, restaurantes o cualquier establecimiento que necesite un sistema de caja robusto y fácil de usar.
+![Estado del Proyecto](https://img.shields.io/badge/Estado-Producción-brightgreen)
+![Licencia](https://img.shields.io/badge/Licencia-MIT-blue)
+![Tecnologías](https://img.shields.io/badge/Tech-HTML%20|%20CSS%20|%20JavaScript-orange)
 
-## ✨ Características Principales
+Un sistema completo de **Punto de Venta (POS)** desarrollado con tecnologías web modernas. Diseñado para pequeños y medianos negocios que necesitan una solución integral para gestionar ventas, inventario y caja.
 
-### 🔐 Gestión de Usuarios
-- **Sistema de Login**: Autenticación por nombre de operario
-- **Autocompletado**: Sugerencias de operarios registrados
-- **Administración de Personal**: Agregar, editar y eliminar operarios
-- **Estadísticas por Operario**: Resumen de ventas y sesiones
+## 🌟 Características Principales
 
-### 💰 Punto de Venta
-- **Apertura de Caja**: Configurar monto inicial
-- **Transacciones Manuales**: Registrar entradas y salidas
-- **Venta de Productos**: Carrito de compras con productos del inventario
-- **Seguimiento en Tiempo Real**: Saldo actual y historial de movimientos
-- **Cierre de Caja**: Cuadre automático con diferencias
+### 💰 **Sistema de Caja Registradora**
+- ✅ Apertura y cierre de caja con conteo manual
+- ✅ Gestión de múltiples métodos de pago
+- ✅ Movimientos de efectivo (entradas y salidas)
+- ✅ Cálculo automático de cambio
 
-### 📦 Gestión de Inventario
-- **Catálogo de Productos**: Nombre, precio, stock y emoji representativo
-- **Control de Stock**: Actualización automática con las ventas
-- **Alertas de Stock**: Productos sin stock o con stock bajo
-- **Edición Masiva**: Importar/exportar inventario en CSV
+### 📦 **Gestión de Inventario**
+- ✅ CRUD completo de productos
+- ✅ Selector de emojis para productos
+- ✅ Control de stock con alertas
+- ✅ Categorización de productos
+- ✅ Filtros y búsqueda avanzada
 
-### 📊 Historial de Ventas
+### 💳 **Métodos de Pago**
+- 💵 **Efectivo** - Con cálculo de cambio
+- 📱 **Yape** - Pagos digitales
+- 💳 **Tarjetas** - Débito y crédito
+- 🏦 **Transferencias** - Bancarias
 
-El historial de ventas es un módulo completo de análisis y reportes que incluye:
+### 📊 **Reportes y Analytics**
+- 📈 Historial de ventas detallado
+- 📋 Registro de cierres de caja
+- 👥 Gestión de personal/operadores
+- 📊 Análisis de productos más vendidos
 
-**🔍 Filtros Avanzados:**
-- **Rango de fechas**: Desde/hasta con calendarios interactivos
-- **Por operario**: Filtrar ventas por empleado específico
-- **Por producto**: Ver ventas de productos específicos
-- **Por monto**: Filtrar ventas con monto mínimo
-- **Búsqueda**: Buscar por texto en productos, operarios o montos
+### 🎨 **Interfaz Moderna**
+- 📱 **Completamente responsive** - Móvil, tablet y desktop
+- 🌈 **Diseño moderno** con gradientes y animaciones
+- ⚡ **Experiencia fluida** con transiciones suaves
+- 🔧 **Atajos de teclado** para acciones frecuentes
 
-**📈 Análisis por Pestañas:**
-1. **Lista de Ventas**: Vista detallada con paginación
-2. **Por Producto**: Análisis de rendimiento por producto
-3. **Por Operario**: Estadísticas de desempeño por empleado
-4. **Gráficos**: Visualizaciones interactivas con Chart.js
+## 🚀 Demo en Vivo
 
-**📋 Funcionalidades de Lista:**
-- Paginación inteligente (10 ventas por página)
-- Ordenamiento múltiple (fecha, monto)
-- Búsqueda en tiempo real
-- Detalles expandidos por venta
-- Información completa de productos vendidos
+**[Ver Demo](https://xangel0s.github.io/Caja-virtual/)**
 
-**📊 Análisis de Productos:**
-- Gráfico de barras con top 10 productos
-- Tabla con estadísticas detalladas
-- Cantidad vendida, total de ventas, promedio
-- Número de transacciones por producto
+## 📷 Capturas de Pantalla
 
-**👥 Análisis de Operarios:**
-- Gráfico circular de distribución de ventas
-- Tabla de rendimiento por empleado
-- Número de ventas, total vendido, ticket promedio
-- Cantidad de productos vendidos por operario
+### 🏪 Panel Principal
+![Panel Principal](./assets/screenshots/dashboard.png)
 
-**📈 Gráficos Interactivos:**
-- **Ventas por Día**: Línea de tiempo con tendencias
-- **Ventas por Hora**: Patrón de actividad diaria
-- **Top 5 Productos**: Gráfico circular de favoritos
-- **Evolución de Ventas**: Tendencia dual (cantidad y monto)
+### 💰 Gestión de Caja
+![Gestión de Caja](./assets/screenshots/cash-register.png)
 
-**📑 Reportes Exportables:**
-- **CSV**: Datos completos con resumen ejecutivo
-- **PDF**: Reporte profesional con gráficos
-- Nombres de archivo automáticos con fecha
-- Resumen estadístico incluido
+### 📦 Inventario
+![Inventario](./assets/screenshots/inventory.png)
 
-**🔄 Actualización Automática:**
-- Recarga automática de filtros cuando hay nuevos datos
-- Actualización de gráficos en tiempo real
-- Sincronización con ventas de la caja
-- Persistencia de filtros aplicados
+## 🛠️ Tecnologías Utilizadas
 
-**📱 Responsive Design:**
-- Optimizado para móviles y tablets
-- Navegación por pestañas adaptativa
-- Gráficos responsivos
-- Filtros adaptables a pantalla pequeña
-
-### 📚 Historial de Cierres
-- **Registro Completo**: Todas las sesiones de caja cerradas
-- **Información Detallada**: Operario, fechas, montos y diferencias
-- **Búsqueda y Filtros**: Por fecha, operario o monto
-
-### 📄 Reportes y Descargas
-- **Reportes TXT**: Archivos de texto plano con resumen completo
-- **Reportes PDF**: Documentos profesionales con gráficos
-- **Gráficos Visuales**: Proporción de ingresos vs gastos
-- **Exportación de Datos**: CSV para inventario y ventas
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Estilos**: CSS Grid, Flexbox, Animaciones CSS
+- **Almacenamiento**: LocalStorage para persistencia
+- **Gráficos**: Chart.js para analytics
+- **PDF**: jsPDF para reportes
+- **Icons**: Font Awesome
 
 ## 🚀 Instalación y Uso
 
-### Requisitos
-- Navegador web moderno (Chrome, Firefox, Safari, Edge)
-- No requiere servidor web (funciona localmente)
-- JavaScript habilitado
-
-### Instrucciones de Instalación
-
-1. **Descarga los archivos**:
-   - Descarga todos los archivos del proyecto
-   - Asegúrate de mantener la estructura de carpetas
-
-2. **Abre la aplicación**:
-   - Abre el archivo `index.html` en tu navegador
-   - O arrastra el archivo al navegador
-
-3. **Primer uso**:
-   - Ingresa tu nombre como operario
-   - El sistema creará productos de ejemplo automáticamente
-   - Comienza a usar la caja virtual
-
-## 📱 Interfaz de Usuario
-
-### Menú Principal (Hamburguesa)
-- **Caja**: Punto de venta principal
-- **Inventario**: Gestión de productos
-- **Historial de Ventas**: Consultar ventas por fecha
-- **Historial de Cierres**: Ver sesiones de caja cerradas
-- **Personal**: Administrar operarios
-- **Cerrar Sesión**: Salir del usuario actual
-
-### Navegación
-- **Responsive**: Funciona perfectamente en móviles, tablets y escritorio
-- **Atajos de Teclado**: Ctrl+1 (Caja), Ctrl+2 (Inventario), etc.
-- **Escape**: Cerrar modales y menús
-
-## 🔧 Funcionalidades Detalladas
-
-### Flujo de Trabajo Típico
-
-1. **Iniciar Sesión**:
-   - Ingresa tu nombre de operario
-   - El sistema te recordará para futuras sesiones
-
-2. **Abrir Caja**:
-   - Haz clic en "Abrir Caja"
-   - Ingresa el monto inicial
-   - La caja queda lista para operar
-
-3. **Realizar Ventas**:
-   - **Método 1**: Usa la pestaña "Productos" para vender del inventario
-   - **Método 2**: Usa la pestaña "Manual" para transacciones personalizadas
-   - El saldo se actualiza automáticamente
-
-4. **Cerrar Caja**:
-   - Haz clic en "Cerrar Caja"
-   - Ingresa el monto físico contado
-   - Descarga reportes en TXT o PDF
-
-### Gestión de Productos
-
-- **Agregar Productos**: Nombre, precio, stock y emoji
-- **Editar Productos**: Modificar información existente
-- **Control de Stock**: Se actualiza automáticamente con las ventas
-- **Alertas Visuales**: Productos sin stock aparecen deshabilitados
-
-### Reportes Avanzados
-
-#### Reporte TXT
-- Información completa de la sesión
-- Detalle de todos los movimientos
-- Estadísticas y resumen financiero
-- Formato legible y estructurado
-
-#### Reporte PDF
-- Documento profesional con gráficos
-- Diseño limpio y organizado
-- Gráficos de torta para ingresos vs gastos
-- Listo para imprimir o compartir
-
-## 💾 Almacenamiento de Datos
-
-### LocalStorage
-- **Persistencia**: Todos los datos se guardan en el navegador
-- **Backup Automático**: Respaldos automáticos cada hora
-- **Exportación**: Posibilidad de exportar todos los datos
-
-### Estructura de Datos
-```javascript
-// Productos
-{
-  id: 1,
-  name: "Coca Cola",
-  price: 2.50,
-  stock: 50,
-  emoji: "🥤"
-}
-
-// Sesiones de Caja
-{
-  id: 1234567890,
-  operator: "Juan Pérez",
-  startTime: "2024-01-15T09:00:00Z",
-  endTime: "2024-01-15T18:00:00Z",
-  startAmount: 100.00,
-  physicalAmount: 520.00,
-  transactions: [...],
-  totals: {
-    income: 450.00,
-    expenses: 30.00,
-    calculatedBalance: 520.00,
-    difference: 0.00
-  }
-}
+### Clonar el Repositorio
+```bash
+git clone https://github.com/Xangel0s/Caja-virtual.git
+cd Caja-virtual
 ```
 
-## 🔒 Seguridad y Privacidad
+### Abrir en el Navegador
+1. Abrir `index.html` en cualquier navegador moderno
+2. O usar un servidor local:
+```bash
+# Con Python
+python -m http.server 8000
 
-- **Datos Locales**: Toda la información se almacena localmente
-- **Sin Conexión**: No se envía información a servidores externos
-- **Backup Manual**: Exporta tus datos cuando lo necesites
-- **Limpieza**: Opción para limpiar todos los datos
+# Con Node.js (http-server)
+npx http-server
 
-## 🎨 Personalización
-
-### Productos por Defecto
-Al iniciar por primera vez, se incluyen productos de ejemplo:
-- Coca Cola 🥤
-- Hamburguesa 🍔
-- Pizza 🍕
-- Agua 💧
-- Café ☕
-- Sándwich 🥪
-- Papas Fritas 🍟
-- Helado 🍦
-
-### Configuración
-- **Moneda**: Configurable (por defecto $)
-- **Nombre del Negocio**: Personalizable
-- **Umbral de Stock Bajo**: Configurable (por defecto 10)
-
-## 🛠️ Soporte Técnico
-
-### Problemas Comunes
-
-1. **Los datos no se guardan**:
-   - Verifica que JavaScript esté habilitado
-   - Asegúrate de no estar en modo incógnito
-
-2. **Error al generar PDF**:
-   - Verifica conexión a internet (se requiere para las librerías)
-   - Usa un navegador moderno
-
-3. **Aplicación lenta**:
-   - Limpia el historial del navegador
-   - Exporta datos y reinicia la aplicación
-
-### Funciones de Debug
-
-Abre la consola del navegador (F12) y usa:
-```javascript
-debugApp()          // Información de debug
-runDiagnostics()    // Diagnósticos del sistema
-restartApp()        // Reiniciar aplicación
-resetApp()          // Resetear todos los datos
+# Con PHP
+php -S localhost:8000
 ```
 
-## 📱 Compatibilidad
+### Credenciales de Prueba
+- **Usuario**: `admin`
+- **Contraseña**: `admin123`
 
-### Navegadores Soportados
-- ✅ Chrome 80+
-- ✅ Firefox 75+
-- ✅ Safari 13+
-- ✅ Edge 80+
+## 📋 Requisitos del Sistema
 
-### Dispositivos
-- ✅ Desktop/Laptop
-- ✅ Tablets
-- ✅ Smartphones
-- ✅ Pantallas táctiles
+- ✅ Navegador moderno (Chrome 70+, Firefox 65+, Safari 12+)
+- ✅ JavaScript habilitado
+- ✅ Almacenamiento local habilitado
+- ✅ Resolución mínima: 320px (móvil)
 
-## 🔮 Funcionalidades Avanzadas
+## 🔧 Configuración
 
-### Atajos de Teclado
-- `Ctrl/Cmd + 1`: Ir a Caja
-- `Ctrl/Cmd + 2`: Ir a Inventario
-- `Ctrl/Cmd + 3`: Ir a Historial de Ventas
-- `Ctrl/Cmd + 4`: Ir a Historial de Cierres
-- `Ctrl/Cmd + 5`: Ir a Personal
-- `Escape`: Cerrar modal/menú
+### Personalización
+El sistema permite personalizar:
+- Información de la empresa
+- Métodos de pago disponibles
+- Categorías de productos
+- Emojis y apariencia
 
-### Características Responsive
-- Menú hamburguesa en dispositivos móviles
-- Layouts adaptables según el tamaño de pantalla
-- Optimizado para uso táctil
+### Datos de Prueba
+El sistema incluye datos de ejemplo para pruebas:
+- Productos predefinidos
+- Usuarios de prueba
+- Transacciones de ejemplo
 
-## 📈 Estadísticas y Métricas
+## 📖 Manual de Usuario
 
-### Por Operario
-- Total de sesiones trabajadas
-- Cantidad de ventas realizadas
-- Monto total vendido
-- Ticket promedio
+### 🏁 Primeros Pasos
+1. **Iniciar Sesión** con las credenciales de prueba
+2. **Abrir Caja** con un monto inicial
+3. **Agregar Productos** al inventario
+4. **Realizar Ventas** usando diferentes métodos de pago
+5. **Cerrar Caja** al final del día
 
-### Por Producto
-- Productos más vendidos
-- Valor total en inventario
-- Alertas de stock bajo
+### 🔑 Atajos de Teclado
+- `F1` - Venta rápida
+- `F2` - Ir a inventario
+- `F3` - Historial de ventas
+- `Esc` - Cerrar modales/cancelar acciones
+- `Enter` - Confirmar acciones
 
-### Por Período
-- Ventas diarias, semanales, mensuales
-- Comparativas de rendimiento
-- Gráficos de tendencias
+## 🤝 Contribuir
 
-## 🎯 Casos de Uso Ideales
+¡Las contribuciones son bienvenidas! Para contribuir:
 
-- **Tiendas de conveniencia**
-- **Restaurantes pequeños**
-- **Cafeterías**
-- **Kioscos**
-- **Puestos de mercado**
-- **Eventos temporales**
-- **Negocios familiares**
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
-## 📞 Contacto y Soporte
+## 🐛 Reportar Bugs
 
-Esta aplicación es de código abierto y está disponible para uso libre. Para reportar problemas o sugerir mejoras, puedes:
+Si encuentras algún bug, por favor:
+1. Verifica que no esté ya reportado en [Issues](https://github.com/Xangel0s/Caja-virtual/issues)
+2. Crea un nuevo issue con:
+   - Descripción detallada del problema
+   - Pasos para reproducir
+   - Navegador y versión
+   - Capturas de pantalla (si aplica)
 
-1. Revisar el código fuente
-2. Reportar bugs encontrados
-3. Proponer nuevas funcionalidades
-4. Contribuir con mejoras
+## 📋 Roadmap
 
-## 📜 Licencia
+### 🔄 Próximas Versiones
+- [ ] 🔄 Sincronización en la nube
+- [ ] 📧 Envío de facturas por email
+- [ ] 📊 Dashboard de analytics avanzado
+- [ ] 🔐 Sistema de roles y permisos
+- [ ] 🎨 Temas personalizables
+- [ ] 📱 App móvil nativa
+- [ ] 🖨️ Integración con impresoras de tickets
 
-Este proyecto está bajo licencia MIT. Puedes usar, modificar y distribuir libremente.
+## 📞 Soporte
+
+¿Necesitas ayuda? Puedes:
+- 📧 Enviar un email a: zastuto5@gmail.com
+- 🐛 Reportar bugs en [Issues](https://github.com/Xangel0s/Caja-virtual/issues)
+- 💬 Iniciar una [Discusión](https://github.com/Xangel0s/Caja-virtual/discussions)
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
 
 ---
 
-**¡Gracias por usar Caja Virtual! 🏪**
+### ⭐ Si te gusta este proyecto, ¡dale una estrella!
 
-_Desarrollado con ❤️ para pequeños negocios_ 
+**Desarrollado con ❤️ por [Xangel0s](https://github.com/Xangel0s)**
+
+---
+
+## 📊 Estadísticas del Proyecto
+
+![GitHub Stats](https://github-readme-stats.vercel.app/api/pin/?username=Xangel0s&repo=Caja-virtual&theme=radical) 
