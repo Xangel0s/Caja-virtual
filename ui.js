@@ -107,10 +107,7 @@ class UIManager {
                     closeSaleConfirmModal();
                 }
                 
-                const cashModal = document.getElementById('cash-movement-modal');
-                if (cashModal && cashModal.classList.contains('active')) {
-                    closeCashMovementModal();
-                }
+                // cashModal eliminado - ahora se usa sistema unificado
                 
                 const closeModal = document.getElementById('close-cash-modal');
                 if (closeModal && closeModal.classList.contains('active')) {
@@ -145,14 +142,7 @@ class UIManager {
             });
         }
         
-        const cashModal = document.getElementById('cash-movement-modal');
-        if (cashModal) {
-            cashModal.addEventListener('click', (e) => {
-                if (e.target === cashModal) {
-                    closeCashMovementModal();
-                }
-            });
-        }
+        // cashModal eliminado - ahora se usa sistema unificado
         
         const closeModal = document.getElementById('close-cash-modal');
         if (closeModal) {
@@ -918,13 +908,7 @@ function closeSaleConfirmModal() {
     }
 }
 
-function closeCashMovementModal() {
-    try {
-        window.ui.closeSpecificModal('cash-movement-modal');
-    } catch (error) {
-        console.error('Error closing cash movement modal:', error);
-    }
-}
+// closeCashMovementModal eliminada - obsoleta, ahora se usa sistema unificado
 
 function closeCloseCashModal() {
     try {
@@ -943,13 +927,7 @@ function openSaleConfirmModal() {
     }
 }
 
-function openCashMovementModal() {
-    try {
-        window.ui.openSpecificModal('cash-movement-modal');
-    } catch (error) {
-        console.error('Error opening cash movement modal:', error);
-    }
-}
+// openCashMovementModal eliminada - obsoleta, ahora se usa sistema unificado
 
 function openCloseCashModal() {
     try {
@@ -985,7 +963,7 @@ function debugSystem() {
     console.log('EmojiSelector:', window.emojiSelector ? '✅' : '❌');
     
     console.log('\n🔍 === ESTADO DE MODALES ===');
-    const modals = ['modal-overlay', 'sale-confirmation-modal', 'cash-movement-modal', 'close-cash-modal'];
+            const modals = ['modal-overlay', 'sale-confirmation-modal', 'close-cash-modal'];
     modals.forEach(modalId => {
         const modal = document.getElementById(modalId);
         console.log(`${modalId}:`, modal ? '✅' : '❌');

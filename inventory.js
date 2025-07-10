@@ -347,7 +347,7 @@ class InventoryManager {
         categoryOptions.unshift({ value: '', label: 'Seleccionar categoría...' });
         
         const formHTML = `
-            <div class="product-form">
+            <form class="product-form">
                 <div class="input-group">
                     <label>🎯 Emoji del Producto</label>
                     <div class="emoji-input-container">
@@ -394,7 +394,7 @@ class InventoryManager {
                         ✅ Agregar Producto
                     </button>
                 </div>
-            </div>
+            </form>
         `;
         
         const modalTitle = isQuick ? '⚡ Agregar Producto Rápido' : '📦 Agregar Nuevo Producto';
@@ -420,22 +420,15 @@ class InventoryManager {
             const emojiBtn = document.querySelector('.emoji-trigger-btn');
             const form = document.querySelector('.product-form');
             
-            if (!emojiInput || !emojiBtn || !form) {
-                console.error('❌ No se pudieron encontrar elementos del formulario');
-                // Usar fix_modal_buttons como respaldo
-                setTimeout(() => {
-                    if (window.fixDynamicFormButtons) {
-                        console.log('🔄 Usando fix_modal_buttons como respaldo...');
-                        window.fixDynamicFormButtons();
-                    }
-                }, 100);
+            if (!form) {
+                console.error('❌ No se encontró el formulario de producto');
                 return;
             }
             
-            console.log('✅ Elementos del formulario encontrados, configurando eventos...');
+            console.log('✅ Formulario encontrado, configurando eventos...');
             
-            // Configurar emoji selector
-            if (window.emojiSelector) {
+            // Configurar emoji selector solo si existe
+            if (emojiInput && emojiBtn && window.emojiSelector) {
                 // Limpiar evento previo
                 emojiBtn.onclick = null;
                 
@@ -472,53 +465,100 @@ class InventoryManager {
                 });
             }
             
-            // Configurar envío del formulario
-            if (!form.dataset.eventsConfigured) {
-                form.dataset.eventsConfigured = 'true';
+            // Configurar envío del formulario - SIEMPRE configurar, sin verificaciones
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                form.addEventListener('submit', (e) => {
+                console.log('📤 Enviando formulario de producto...');
+                
+                // Obtener datos del formulario manualmente
+                const nameInput = form.querySelector('input[name="name"]');
+                const priceInput = form.querySelector('input[name="price"]');
+                const stockInput = form.querySelector('input[name="stock"]');
+                const categorySelect = form.querySelector('select[name="category"]');
+                const emojiInputForm = form.querySelector('input[name="emoji"]');
+                
+                const data = {
+                    name: nameInput ? nameInput.value : '',
+                    price: priceInput ? priceInput.value : '0',
+                    stock: stockInput ? stockInput.value : '0',
+                    category: categorySelect ? categorySelect.value : '',
+                    emoji: emojiInputForm ? emojiInputForm.value : '📦'
+                };
+                
+                console.log('📋 Datos extraídos del formulario:', data);
+                
+                // Validar datos antes de enviar
+                if (!data.name) {
+                    window.uiManager.showNotification('El nombre del producto es requerido', 'error');
+                    return;
+                }
+                
+                if (!data.price || parseFloat(data.price) <= 0) {
+                    window.uiManager.showNotification('El precio debe ser mayor a 0', 'error');
+                    return;
+                }
+                
+                if (!data.stock || parseInt(data.stock) < 0) {
+                    window.uiManager.showNotification('El stock no puede ser negativo', 'error');
+                    return;
+                }
+                
+                // Procesar según modo
+                if (mode === 'add') {
+                    console.log('🆕 Procesando como agregar producto...');
+                    this.handleAddProduct(data);
+                } else if (mode === 'edit' && productId) {
+                    console.log(`🔄 Procesando como editar producto ID: ${productId}...`);
+                    this.handleEditProduct(productId, data);
+                }
+            });
+            
+            // También configurar el botón submit directamente
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    console.log('🔘 Botón submit clickeado, disparando evento submit...');
                     
-                    const formData = new FormData(form);
-                    const data = Object.fromEntries(formData);
-                    
-                    console.log('📤 Enviando formulario de producto...', data);
-                    
-                    if (mode === 'add') {
-                        this.handleAddProduct(data);
-                    } else if (mode === 'edit' && productId) {
-                        this.handleEditProduct(productId, data);
-                    }
+                    // Disparar evento submit del formulario
+                    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                    form.dispatchEvent(submitEvent);
                 });
             }
             
             console.log('✅ Eventos de formulario configurados exitosamente');
+            
+            // Focus en primer campo
+            const firstInput = form.querySelector('input[name="name"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
         }, 100);
     }
     
     handleAddProduct(data) {
-            // Validaciones
-            if (parseFloat(data.price) <= 0) {
-                window.uiManager.showNotification('El precio debe ser mayor a 0', 'error');
-                return;
-            }
-            
-            if (parseInt(data.stock) < 0) {
-                window.uiManager.showNotification('El stock no puede ser negativo', 'error');
-                return;
-            }
+        console.log('🔄 Iniciando handleAddProduct con datos:', data);
+        
+        try {
+            // Validaciones previas ya hechas en setupProductForm
             
             // Crear producto
             const productData = {
-                ...data,
+                name: data.name,
                 price: parseFloat(data.price),
                 stock: parseInt(data.stock),
+                category: data.category || 'otros',
                 emoji: data.emoji || '📦'
             };
             
+            console.log('💾 Guardando producto con datos:', productData);
+            
             const product = window.dataManager.addProduct(productData);
             if (product) {
+                console.log('✅ Producto guardado exitosamente:', product);
                 window.uiManager.showNotification('Producto agregado exitosamente', 'success');
                 this.loadInventory();
                 window.uiManager.closeModal();
@@ -527,7 +567,14 @@ class InventoryManager {
                 if (window.cashRegister) {
                     window.cashRegister.loadProductsGrid();
                 }
+            } else {
+                console.error('❌ Error al guardar el producto');
+                window.uiManager.showNotification('Error al agregar el producto', 'error');
             }
+        } catch (error) {
+            console.error('❌ Error en handleAddProduct:', error);
+            window.uiManager.showNotification('Error al procesar el producto', 'error');
+        }
     }
     
     editProduct(id) {
@@ -536,7 +583,7 @@ class InventoryManager {
         
         const categories = this.getCategories();
         const formHTML = `
-            <div class="product-form">
+            <form class="product-form">
                 <div class="input-group">
                     <label>🎯 Emoji del Producto</label>
                     <div class="emoji-input-container">
@@ -583,7 +630,7 @@ class InventoryManager {
                         ✅ Actualizar Producto
                     </button>
                 </div>
-            </div>
+            </form>
         `;
         
         window.uiManager.showModal({

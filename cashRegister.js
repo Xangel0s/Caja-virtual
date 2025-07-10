@@ -905,7 +905,7 @@ class CashRegister {
         const buttonClass = type === 'in' ? 'success' : 'warning';
         
         const formHTML = `
-            <div class="cash-movement-form">
+            <form class="cash-movement-form">
                 <div class="input-group">
                     <label>💰 Monto *</label>
                     <input type="number" name="amount" id="movement-amount" required placeholder="0.00" step="0.01" min="0.01" class="large-input">
@@ -924,7 +924,7 @@ class CashRegister {
                         ${icon} ${buttonText}
                     </button>
                 </div>
-            </div>
+            </form>
         `;
         
         window.uiManager.showModal({
@@ -937,6 +937,8 @@ class CashRegister {
      }
      
      setupCashMovementForm(type) {
+         console.log(`🔧 Configurando formulario de movimiento: ${type}`);
+         
          setTimeout(() => {
              const form = document.querySelector('.cash-movement-form');
              const amountInput = document.getElementById('movement-amount');
@@ -945,6 +947,8 @@ class CashRegister {
                  console.error('❌ No se encontró el formulario de movimientos');
                  return;
              }
+             
+             console.log('✅ Formulario de movimientos encontrado, configurando eventos...');
              
              // Focus en el input de monto
              if (amountInput) {
@@ -956,11 +960,35 @@ class CashRegister {
                  e.preventDefault();
                  e.stopPropagation();
                  
-                 const formData = new FormData(form);
-                 const data = Object.fromEntries(formData);
+                 console.log('📤 Enviando formulario de movimiento...');
+                 
+                 // Obtener datos manualmente
+                 const amountInputForm = document.getElementById('movement-amount');
+                 const conceptInputForm = document.getElementById('movement-concept');
+                 
+                 const data = {
+                     amount: amountInputForm ? amountInputForm.value : '',
+                     concept: conceptInputForm ? conceptInputForm.value : ''
+                 };
+                 
+                 console.log('📋 Datos del formulario:', data);
                  
                  this.handleCashMovement(type, data);
              });
+             
+             // También configurar el botón submit directamente
+             const submitBtn = form.querySelector('button[type="submit"]');
+             if (submitBtn) {
+                 submitBtn.addEventListener('click', (e) => {
+                     e.preventDefault();
+                     e.stopPropagation();
+                     console.log('🔘 Botón submit clickeado, disparando evento submit...');
+                     
+                     // Disparar evento submit del formulario
+                     const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                     form.dispatchEvent(submitEvent);
+                 });
+             }
              
              // Enter en input de concepto para enviar
              const conceptInput = document.getElementById('movement-concept');
@@ -972,158 +1000,84 @@ class CashRegister {
                      }
                  });
              }
+             
+             console.log('✅ Eventos de formulario de movimientos configurados');
          }, 100);
      }
      
      handleCashMovement(type, data) {
-         const amount = parseFloat(data.amount);
-         const concept = data.concept.trim();
+         console.log(`🔄 Iniciando handleCashMovement tipo: ${type}, datos:`, data);
          
-         if (!amount || amount <= 0) {
-             window.uiManager.showNotification('Ingresa un monto válido', 'error');
-             return;
+         try {
+             const amount = parseFloat(data.amount);
+             const concept = data.concept ? data.concept.trim() : '';
+             
+             console.log(`💰 Monto procesado: ${amount}, Concepto: "${concept}"`);
+             
+             if (!amount || amount <= 0) {
+                 window.uiManager.showNotification('Ingresa un monto válido', 'error');
+                 return;
+             }
+             
+             if (!concept) {
+                 window.uiManager.showNotification('Ingresa un concepto', 'error');
+                 return;
+             }
+             
+             // Verificar si hay suficiente efectivo para salidas
+             if (type === 'out' && amount > this.currentSession.currentCashAmount) {
+                 window.uiManager.showNotification('No hay suficiente efectivo en caja', 'error');
+                 return;
+             }
+             
+             // Actualizar monto de efectivo
+             const newCashAmount = type === 'in' 
+                 ? this.currentSession.currentCashAmount + amount
+                 : this.currentSession.currentCashAmount - amount;
+             
+             console.log(`💵 Actualizando efectivo de ${this.currentSession.currentCashAmount} a ${newCashAmount}`);
+             
+             window.dataManager.updateSessionAmounts(newCashAmount, this.currentSession.currentDigitalAmount);
+             
+             // Registrar transacción
+             const transaction = {
+                 type: type === 'in' ? 'cash_in' : 'cash_out',
+                 amount: amount,
+                 description: concept,
+                 timestamp: new Date().toISOString(),
+                 operatorId: window.authSystem.getCurrentUser().id,
+                 operatorName: window.authSystem.getCurrentUser().name
+             };
+             
+             console.log('📝 Registrando transacción:', transaction);
+             
+             window.dataManager.addSessionTransaction(transaction);
+             
+             // Actualizar sesión local
+             this.currentSession = window.dataManager.getCurrentSession();
+             
+             // Actualizar UI
+             this.updateCashStatusUI();
+             this.updateCashSummary();
+             
+             // Cerrar modal
+             window.uiManager.closeModal();
+             
+             const actionText = type === 'in' ? 'entrada' : 'salida';
+             window.uiManager.showNotification(
+                 `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} de ${window.dataManager.formatCurrency(amount)} registrada`, 
+                 'success'
+             );
+             
+             console.log('✅ Movimiento de efectivo procesado exitosamente');
+             
+         } catch (error) {
+             console.error('❌ Error en handleCashMovement:', error);
+             window.uiManager.showNotification('Error al procesar el movimiento', 'error');
          }
-         
-         if (!concept) {
-             window.uiManager.showNotification('Ingresa un concepto', 'error');
-             return;
-         }
-         
-         // Verificar si hay suficiente efectivo para salidas
-         if (type === 'out' && amount > this.currentSession.currentCashAmount) {
-             window.uiManager.showNotification('No hay suficiente efectivo en caja', 'error');
-             return;
-         }
-         
-         // Actualizar monto de efectivo
-         const newCashAmount = type === 'in' 
-             ? this.currentSession.currentCashAmount + amount
-             : this.currentSession.currentCashAmount - amount;
-         
-         window.dataManager.updateSessionAmounts(newCashAmount, this.currentSession.currentDigitalAmount);
-         
-         // Registrar transacción
-         const transaction = {
-             type: type === 'in' ? 'cash_in' : 'cash_out',
-             amount: amount,
-             description: concept,
-             timestamp: new Date().toISOString(),
-             operatorId: window.authSystem.getCurrentUser().id,
-             operatorName: window.authSystem.getCurrentUser().name
-         };
-         
-         window.dataManager.addSessionTransaction(transaction);
-         
-         // Actualizar sesión local
-         this.currentSession = window.dataManager.getCurrentSession();
-         
-         // Actualizar UI
-         this.updateCashStatusUI();
-         this.updateCashSummary();
-         
-         // Cerrar modal
-         window.uiManager.closeModal();
-         
-         const actionText = type === 'in' ? 'entrada' : 'salida';
-         window.uiManager.showNotification(
-             `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} de ${window.dataManager.formatCurrency(amount)} registrada`, 
-             'success'
-         );
      }
      
-     bindCashMovementEvents(type) {
-        const confirmBtn = document.getElementById('confirm-movement-btn');
-        const cancelBtn = document.getElementById('cancel-movement-btn');
-        
-        // Limpiar eventos previos de forma más segura
-        if (confirmBtn) {
-            confirmBtn.onclick = null;
-            confirmBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.confirmCashMovement(type);
-            });
-        }
-        
-        if (cancelBtn) {
-            cancelBtn.onclick = null;
-            cancelBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.cancelCashMovement();
-            });
-        }
-    }
-    
-    confirmCashMovement(type) {
-        const amountInput = document.getElementById('movement-amount');
-        const conceptInput = document.getElementById('movement-concept');
-        
-        const amount = parseFloat(amountInput.value);
-        const concept = conceptInput.value.trim();
-        
-        if (!amount || amount <= 0) {
-            window.uiManager.showNotification('Ingresa un monto válido', 'error');
-            return;
-        }
-        
-        if (!concept) {
-            window.uiManager.showNotification('Ingresa un concepto', 'error');
-            return;
-        }
-        
-        // Verificar si hay suficiente efectivo para salidas
-        if (type === 'out' && amount > this.currentSession.currentCashAmount) {
-            window.uiManager.showNotification('No hay suficiente efectivo en caja', 'error');
-            return;
-        }
-        
-        // Actualizar monto de efectivo
-        const newCashAmount = type === 'in' 
-            ? this.currentSession.currentCashAmount + amount
-            : this.currentSession.currentCashAmount - amount;
-        
-        window.dataManager.updateSessionAmounts(newCashAmount, this.currentSession.currentDigitalAmount);
-        
-        // Registrar transacción
-        const transaction = {
-            type: type === 'in' ? 'cash_in' : 'cash_out',
-            amount: amount,
-            description: concept,
-            operatorId: window.authSystem.getCurrentUser().id,
-            operatorName: window.authSystem.getCurrentUser().name
-        };
-        
-        window.dataManager.addSessionTransaction(transaction);
-        
-        // Actualizar sesión local
-        this.currentSession = window.dataManager.getCurrentSession();
-        
-        // Actualizar UI
-        this.updateCashStatusUI();
-        this.updateCashSummary();
-        this.cancelCashMovement();
-        
-        const actionText = type === 'in' ? 'entrada' : 'salida';
-        window.uiManager.showNotification(
-            `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} de ${window.dataManager.formatCurrency(amount)} registrada`, 
-            'success'
-        );
-    }
-    
-    cancelCashMovement() {
-        const modal = document.getElementById('cash-movement-modal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-        
-        // Limpiar campos
-        const amountInput = document.getElementById('movement-amount');
-        const conceptInput = document.getElementById('movement-concept');
-        
-        if (amountInput) amountInput.value = '';
-        if (conceptInput) conceptInput.value = '';
-    }
+    // Funciones obsoletas eliminadas - ahora se usa handleCashMovement con el nuevo sistema de modales
 
     // ================================
     // UTILIDADES
@@ -1252,12 +1206,6 @@ class CashRegister {
                     <button class="action-btn secondary" onclick="window.uiManager.closeModal()">
                         ❌ Cerrar
                     </button>
-                    <button class="action-btn success" onclick="cashRegister.openMovementFromHistory('in')">
-                        ⬆️ Nueva Entrada
-                    </button>
-                    <button class="action-btn warning" onclick="cashRegister.openMovementFromHistory('out')">
-                        ⬇️ Nueva Salida
-                    </button>
                 </div>
             </div>
         `;
@@ -1298,20 +1246,8 @@ class CashRegister {
      }
      
      // ================================
-     // MÉTODOS AUXILIARES PARA MODALES
+     // MÉTODOS AUXILIARES PARA MODALES - LIMPIEZA COMPLETADA
      // ================================
-     
-     openMovementFromHistory(type) {
-         // Cerrar el modal actual primero
-         if (window.uiManager) {
-             window.uiManager.closeModal();
-         }
-         
-         // Esperar un poco antes de abrir el nuevo modal para evitar conflictos
-         setTimeout(() => {
-             this.showCashMovementModal(type);
-         }, 200);
-     }
 }
 
 // Crear instancia global
