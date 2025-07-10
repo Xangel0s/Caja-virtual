@@ -341,7 +341,7 @@ class InventoryManager {
     // GESTIÓN DE PRODUCTOS
     // ================================
     
-    showAddProductModal() {
+    showAddProductModal(isQuick = false) {
         const categories = this.getCategories();
         const categoryOptions = categories.map(cat => ({ value: cat, label: cat }));
         categoryOptions.unshift({ value: '', label: 'Seleccionar categoría...' });
@@ -352,7 +352,7 @@ class InventoryManager {
                     <label>🎯 Emoji del Producto</label>
                     <div class="emoji-input-container">
                         <input type="text" name="emoji" id="product-emoji" placeholder="📦" readonly>
-                        <button type="button" class="emoji-trigger-btn" onclick="this.openEmojiSelector()">
+                        <button type="button" class="emoji-trigger-btn">
                             <span>😀</span>
                         </button>
                     </div>
@@ -397,8 +397,10 @@ class InventoryManager {
             </div>
         `;
         
+        const modalTitle = isQuick ? '⚡ Agregar Producto Rápido' : '📦 Agregar Nuevo Producto';
+        
         window.uiManager.showModal({
-            title: '📦 Agregar Nuevo Producto',
+            title: modalTitle,
             body: formHTML
         });
         
@@ -408,81 +410,91 @@ class InventoryManager {
     
     // Nueva función para configurar eventos de formularios de manera confiable
     setupProductForm(mode, productId = null) {
-        // Usar múltiples intentos para asegurar que los elementos estén disponibles
-        let attempts = 0;
-        const maxAttempts = 5;
+        console.log(`🔧 Configurando formulario de producto: mode=${mode}, productId=${productId}`);
         
-        const setupEvents = () => {
-            attempts++;
-            
+        // Usar timeout para asegurar que el DOM esté listo
+        setTimeout(() => {
             // Para formularios de edición, el ID del emoji input es diferente
             const emojiInputId = mode === 'edit' ? 'edit-product-emoji' : 'product-emoji';
             const emojiInput = document.getElementById(emojiInputId);
             const emojiBtn = document.querySelector('.emoji-trigger-btn');
             const form = document.querySelector('.product-form');
             
-            if (emojiInput && emojiBtn && form) {
-                console.log(`✅ Configurando formulario de producto (intento ${attempts})`);
+            if (!emojiInput || !emojiBtn || !form) {
+                console.error('❌ No se pudieron encontrar elementos del formulario');
+                // Usar fix_modal_buttons como respaldo
+                setTimeout(() => {
+                    if (window.fixDynamicFormButtons) {
+                        console.log('🔄 Usando fix_modal_buttons como respaldo...');
+                        window.fixDynamicFormButtons();
+                    }
+                }, 100);
+                return;
+            }
+            
+            console.log('✅ Elementos del formulario encontrados, configurando eventos...');
+            
+            // Configurar emoji selector
+            if (window.emojiSelector) {
+                // Limpiar evento previo
+                emojiBtn.onclick = null;
                 
-                // Configurar emoji selector
-                if (window.emojiSelector) {
-                    emojiBtn.onclick = null; // Limpiar evento previo
-                    emojiBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        window.emojiSelector.open({
-                            targetInput: emojiInput,
-                            onSelect: (emoji) => {
-                                emojiInput.value = emoji;
-                                emojiBtn.querySelector('span').textContent = emoji;
-                            }
-                        });
+                // Configurar nuevo evento
+                emojiBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🎨 Abriendo selector de emojis...');
+                    window.emojiSelector.open({
+                        targetInput: emojiInput,
+                        onSelect: (emoji) => {
+                            emojiInput.value = emoji;
+                            const span = emojiBtn.querySelector('span');
+                            if (span) span.textContent = emoji;
+                            console.log(`✅ Emoji seleccionado: ${emoji}`);
+                        }
                     });
-                }
+                });
+            }
+            
+            // Configurar botón cancelar
+            const cancelBtn = form.querySelector('.action-btn.secondary');
+            if (cancelBtn) {
+                // Limpiar eventos previos
+                cancelBtn.onclick = null;
                 
-                // Configurar envío del formulario
-                // Marcar que ya tiene eventos para evitar duplicados
-                if (!form.dataset.eventsConfigured) {
-                    form.dataset.eventsConfigured = 'true';
+                cancelBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('❌ Cancelando formulario de producto...');
+                    if (window.uiManager) {
+                        window.uiManager.closeModal();
+                    }
+                });
+            }
+            
+            // Configurar envío del formulario
+            if (!form.dataset.eventsConfigured) {
+                form.dataset.eventsConfigured = 'true';
+                
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData);
+                    
+                    console.log('📤 Enviando formulario de producto...', data);
                     
                     if (mode === 'add') {
-                        form.addEventListener('submit', (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const formData = new FormData(form);
-                            const data = Object.fromEntries(formData);
-                            console.log('📤 Enviando formulario de agregar producto');
-                            this.handleAddProduct(data);
-                        });
+                        this.handleAddProduct(data);
                     } else if (mode === 'edit' && productId) {
-                        form.dataset.productId = productId;
-                        form.addEventListener('submit', (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const formData = new FormData(form);
-                            const data = Object.fromEntries(formData);
-                            console.log('📤 Enviando formulario de editar producto');
-                            this.handleEditProduct(productId, data);
-                        });
+                        this.handleEditProduct(productId, data);
                     }
-                }
-                
-                console.log('✅ Eventos de formulario configurados exitosamente');
-                return true;
-            } else {
-                if (attempts < maxAttempts) {
-                    console.log(`⏳ Reintentando configurar formulario (${attempts}/${maxAttempts})...`);
-                    setTimeout(setupEvents, 100);
-                } else {
-                    console.error('❌ No se pudo configurar el formulario de producto después de varios intentos');
-                }
-                return false;
+                });
             }
-        };
-        
-        // Intentar inmediatamente y luego con delay
-        if (!setupEvents()) {
-            setTimeout(setupEvents, 50);
-        }
+            
+            console.log('✅ Eventos de formulario configurados exitosamente');
+        }, 100);
     }
     
     handleAddProduct(data) {
@@ -529,7 +541,7 @@ class InventoryManager {
                     <label>🎯 Emoji del Producto</label>
                     <div class="emoji-input-container">
                         <input type="text" name="emoji" id="edit-product-emoji" placeholder="📦" value="${product.emoji || '📦'}" readonly>
-                        <button type="button" class="emoji-trigger-btn" onclick="this.openEmojiSelector()">
+                        <button type="button" class="emoji-trigger-btn">
                             <span>${product.emoji || '😀'}</span>
                         </button>
                     </div>

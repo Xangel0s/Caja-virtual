@@ -72,6 +72,7 @@ class CashRegister {
         // Movimientos de efectivo
         const cashInBtn = document.getElementById('cash-in-btn');
         const cashOutBtn = document.getElementById('cash-out-btn');
+        const viewMovementsBtn = document.getElementById('view-movements-btn');
         
         if (cashInBtn) {
             cashInBtn.addEventListener('click', () => this.showCashMovementModal('in'));
@@ -79,6 +80,10 @@ class CashRegister {
         
         if (cashOutBtn) {
             cashOutBtn.addEventListener('click', () => this.showCashMovementModal('out'));
+        }
+        
+        if (viewMovementsBtn) {
+            viewMovementsBtn.addEventListener('click', () => this.showCashMovementsHistory());
         }
         
         // Enter en campos de venta rápida
@@ -894,30 +899,139 @@ class CashRegister {
             return;
         }
         
-        const modal = document.getElementById('cash-movement-modal');
-        const title = document.getElementById('movement-modal-title');
-        
-        if (!modal) return;
-        
         const actionText = type === 'in' ? 'Entrada de Efectivo' : 'Salida de Efectivo';
         const icon = type === 'in' ? '⬆️' : '⬇️';
+        const buttonText = type === 'in' ? 'Registrar Entrada' : 'Registrar Salida';
+        const buttonClass = type === 'in' ? 'success' : 'warning';
         
-        if (title) title.textContent = `${icon} ${actionText}`;
+        const formHTML = `
+            <div class="cash-movement-form">
+                <div class="input-group">
+                    <label>💰 Monto *</label>
+                    <input type="number" name="amount" id="movement-amount" required placeholder="0.00" step="0.01" min="0.01" class="large-input">
+                </div>
+                
+                <div class="input-group">
+                    <label>📝 Concepto *</label>
+                    <input type="text" name="concept" id="movement-concept" required placeholder="Ej: Cambio inicial, gastos, etc." class="large-input">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="action-btn secondary" onclick="window.uiManager.closeModal()">
+                        ❌ Cancelar
+                    </button>
+                    <button type="submit" class="action-btn ${buttonClass}">
+                        ${icon} ${buttonText}
+                    </button>
+                </div>
+            </div>
+        `;
         
-        modal.style.display = 'flex';
+        window.uiManager.showModal({
+            title: `${icon} ${actionText}`,
+            body: formHTML
+        });
         
-        // Bind eventos
-        this.bindCashMovementEvents(type);
-        
-        // Focus en input
-        const amountInput = document.getElementById('movement-amount');
-        if (amountInput) {
-            amountInput.value = '';
-            setTimeout(() => amountInput.focus(), 100);
-        }
-    }
-    
-    bindCashMovementEvents(type) {
+                 // Configurar eventos del formulario
+         this.setupCashMovementForm(type);
+     }
+     
+     setupCashMovementForm(type) {
+         setTimeout(() => {
+             const form = document.querySelector('.cash-movement-form');
+             const amountInput = document.getElementById('movement-amount');
+             
+             if (!form) {
+                 console.error('❌ No se encontró el formulario de movimientos');
+                 return;
+             }
+             
+             // Focus en el input de monto
+             if (amountInput) {
+                 amountInput.focus();
+             }
+             
+             // Configurar envío del formulario
+             form.addEventListener('submit', (e) => {
+                 e.preventDefault();
+                 e.stopPropagation();
+                 
+                 const formData = new FormData(form);
+                 const data = Object.fromEntries(formData);
+                 
+                 this.handleCashMovement(type, data);
+             });
+             
+             // Enter en input de concepto para enviar
+             const conceptInput = document.getElementById('movement-concept');
+             if (conceptInput) {
+                 conceptInput.addEventListener('keypress', (e) => {
+                     if (e.key === 'Enter') {
+                         e.preventDefault();
+                         form.dispatchEvent(new Event('submit'));
+                     }
+                 });
+             }
+         }, 100);
+     }
+     
+     handleCashMovement(type, data) {
+         const amount = parseFloat(data.amount);
+         const concept = data.concept.trim();
+         
+         if (!amount || amount <= 0) {
+             window.uiManager.showNotification('Ingresa un monto válido', 'error');
+             return;
+         }
+         
+         if (!concept) {
+             window.uiManager.showNotification('Ingresa un concepto', 'error');
+             return;
+         }
+         
+         // Verificar si hay suficiente efectivo para salidas
+         if (type === 'out' && amount > this.currentSession.currentCashAmount) {
+             window.uiManager.showNotification('No hay suficiente efectivo en caja', 'error');
+             return;
+         }
+         
+         // Actualizar monto de efectivo
+         const newCashAmount = type === 'in' 
+             ? this.currentSession.currentCashAmount + amount
+             : this.currentSession.currentCashAmount - amount;
+         
+         window.dataManager.updateSessionAmounts(newCashAmount, this.currentSession.currentDigitalAmount);
+         
+         // Registrar transacción
+         const transaction = {
+             type: type === 'in' ? 'cash_in' : 'cash_out',
+             amount: amount,
+             description: concept,
+             timestamp: new Date().toISOString(),
+             operatorId: window.authSystem.getCurrentUser().id,
+             operatorName: window.authSystem.getCurrentUser().name
+         };
+         
+         window.dataManager.addSessionTransaction(transaction);
+         
+         // Actualizar sesión local
+         this.currentSession = window.dataManager.getCurrentSession();
+         
+         // Actualizar UI
+         this.updateCashStatusUI();
+         this.updateCashSummary();
+         
+         // Cerrar modal
+         window.uiManager.closeModal();
+         
+         const actionText = type === 'in' ? 'entrada' : 'salida';
+         window.uiManager.showNotification(
+             `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} de ${window.dataManager.formatCurrency(amount)} registrada`, 
+             'success'
+         );
+     }
+     
+     bindCashMovementEvents(type) {
         const confirmBtn = document.getElementById('confirm-movement-btn');
         const cancelBtn = document.getElementById('cancel-movement-btn');
         
@@ -1086,6 +1200,118 @@ class CashRegister {
             element.textContent = window.dataManager.formatCurrency(amount);
         }
     }
+    
+    // ================================
+    // HISTORIAL DE MOVIMIENTOS
+    // ================================
+    
+    showCashMovementsHistory() {
+        if (!this.currentSession) {
+            window.uiManager.showNotification('No hay una sesión activa', 'error');
+            return;
+        }
+        
+        const transactions = this.currentSession.transactions || [];
+        const cashMovements = transactions.filter(t => t.type === 'cash_in' || t.type === 'cash_out');
+        
+        let historyHTML = `
+            <div class="cash-movements-history">
+                <div class="movements-header">
+                    <h4>📋 Movimientos de Efectivo - ${new Date().toLocaleDateString()}</h4>
+                    <div class="movements-summary">
+                        <div class="summary-item success">
+                            <span>Entradas:</span>
+                            <span>${window.dataManager.formatCurrency(this.getCashMovements('in'))}</span>
+                        </div>
+                        <div class="summary-item danger">
+                            <span>Salidas:</span>
+                            <span>${window.dataManager.formatCurrency(this.getCashMovements('out'))}</span>
+                        </div>
+                    </div>
+                </div>
+        `;
+        
+        if (cashMovements.length === 0) {
+            historyHTML += `
+                <div class="no-movements">
+                    <div class="no-movements-icon">💰</div>
+                    <h3>No hay movimientos registrados</h3>
+                    <p>Los movimientos de entrada y salida de efectivo aparecerán aquí</p>
+                </div>
+            `;
+        } else {
+            historyHTML += `
+                <div class="movements-list">
+                    ${cashMovements.map(movement => this.createMovementItem(movement)).join('')}
+                </div>
+            `;
+        }
+        
+        historyHTML += `
+                <div class="movements-actions">
+                    <button class="action-btn secondary" onclick="window.uiManager.closeModal()">
+                        ❌ Cerrar
+                    </button>
+                    <button class="action-btn success" onclick="cashRegister.openMovementFromHistory('in')">
+                        ⬆️ Nueva Entrada
+                    </button>
+                    <button class="action-btn warning" onclick="cashRegister.openMovementFromHistory('out')">
+                        ⬇️ Nueva Salida
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        window.uiManager.showModal({
+            title: '💰 Historial de Movimientos de Efectivo',
+            body: historyHTML
+        });
+    }
+    
+    createMovementItem(movement) {
+        const isIncome = movement.type === 'cash_in';
+        const icon = isIncome ? '⬆️' : '⬇️';
+        const typeClass = isIncome ? 'income' : 'expense';
+        const typeText = isIncome ? 'Entrada' : 'Salida';
+        const time = new Date(movement.timestamp || Date.now()).toLocaleTimeString();
+        
+        return `
+            <div class="movement-item ${typeClass}">
+                <div class="movement-header">
+                    <div class="movement-type">
+                        <span class="movement-icon">${icon}</span>
+                        <span class="movement-label">${typeText}</span>
+                    </div>
+                    <div class="movement-amount ${typeClass}">
+                        ${isIncome ? '+' : '-'}${window.dataManager.formatCurrency(movement.amount)}
+                    </div>
+                </div>
+                <div class="movement-details">
+                    <div class="movement-description">${movement.description}</div>
+                    <div class="movement-meta">
+                        <span class="movement-time">🕐 ${time}</span>
+                        <span class="movement-operator">👤 ${movement.operatorName || 'Operario'}</span>
+                    </div>
+                </div>
+                         </div>
+         `;
+     }
+     
+     // ================================
+     // MÉTODOS AUXILIARES PARA MODALES
+     // ================================
+     
+     openMovementFromHistory(type) {
+         // Cerrar el modal actual primero
+         if (window.uiManager) {
+             window.uiManager.closeModal();
+         }
+         
+         // Esperar un poco antes de abrir el nuevo modal para evitar conflictos
+         setTimeout(() => {
+             this.showCashMovementModal(type);
+         }, 200);
+     }
 }
 
 // Crear instancia global

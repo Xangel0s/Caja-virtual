@@ -5498,3 +5498,372 @@ body {
         font-size: 1.3rem;
     }
 }
+
+/* ==========================================
+   CASH MOVEMENT FORMS
+   ========================================== */
+.cash-movement-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.cash-movement-form .input-group {
+    margin-bottom: 1.5rem;
+}
+
+.cash-movement-form .large-input {
+    font-size: 1.1rem;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.cash-movement-form .large-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
+}
+
+.cash-movement-form .large-input[type="number"] {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--success-color);
+}
+
+/* ==========================================
+   MOBILE IMPROVEMENTS
+   ========================================== */
+
+/* Mejoras generales para móvil */
+@media (max-width: 768px) {
+    /* Reducir padding en contenedores */
+    .container {
+        padding: 0.5rem;
+    }
+    
+    .content {
+        padding: 1rem;
+    }
+    
+    /* Mejorar botones en móvil */
+    .action-btn {
+        padding: 1rem;
+        font-size: 1rem;
+        min-height: 48px; /* Touch target mínimo */
+        border-radius: 12px;
+    }
+    
+    /* Mejorar inputs en móvil */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    textarea {
+        font-size: 16px; /* Evitar zoom en iOS */
+        padding: 1rem;
+        min-height: 48px;
+        border-radius: 12px;
+    }
+    
+    /* Mejorar modales en móvil */
+    .modal-content {
+        width: 95%;
+        max-width: 95%;
+        margin: 1rem;
+        border-radius: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        padding: 1.5rem 1rem 1rem 1rem;
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    /* Mejorar grids de productos para móvil */
+    .products-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .product-item {
+        border-radius: 15px;
+        padding: 1rem 0.75rem;
+    }
+    
+    /* Mejorar inventario en móvil */
+    .inventory-item {
+        padding: 1rem;
+        border-radius: 15px;
+        margin-bottom: 0.75rem;
+    }
+    
+    .product-info h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .product-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .product-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .product-actions .action-btn {
+        flex: 1;
+        min-width: 120px;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Mejorar historial de ventas en móvil */
+    .sale-item {
+        padding: 1rem;
+        border-radius: 15px;
+        margin-bottom: 0.75rem;
+    }
+    
+    .sale-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .sale-id {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+    
+    /* Mejorar secciones de caja para móvil */
+    .cash-summary {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .summary-section {
+        padding: 1.5rem;
+        border-radius: 20px;
+        text-align: center;
+    }
+    
+    .amount-display {
+        font-size: 2rem;
+        margin: 1rem 0;
+    }
+    
+    .amount-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .amount-btn {
+        padding: 1rem;
+        font-size: 1rem;
+        border-radius: 15px;
+    }
+    
+    /* Mejorar cash status card para móvil */
+    .cash-status-card {
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .cash-info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .status-indicator {
+        justify-self: center;
+        margin-bottom: 1rem;
+    }
+    
+    /* Mejorar filtros para móvil */
+    .inventory-filters {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .filter-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .filter-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .filter-tab {
+        white-space: nowrap;
+        min-width: 120px;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 20px;
+    }
+    
+    /* Mejorar formularios para móvil */
+    .form-actions {
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .form-actions .action-btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        border-radius: 15px;
+    }
+    
+    /* Botón principal de agregar producto rápido */
+    #add-product-quick-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 1rem;
+        z-index: 1000;
+        padding: 1rem 1.5rem;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        box-shadow: 0 8px 25px rgba(46, 204, 113, 0.3);
+        background: linear-gradient(135deg, var(--success-color), #27ae60);
+        border: none;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        min-width: auto;
+    }
+    
+    #add-product-quick-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(46, 204, 113, 0.4);
+    }
+    
+    #add-product-quick-btn:active {
+        transform: translateY(0);
+    }
+    
+    /* Mejorar cart para móvil */
+    .cart-container {
+        padding: 1rem;
+        border-radius: 20px;
+    }
+    
+    .cart-item {
+        padding: 1rem;
+        border-radius: 15px;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Mejorar payment methods para móvil */
+    .payment-methods {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .payment-btn {
+        padding: 1.5rem 1rem;
+        border-radius: 20px;
+        font-size: 1rem;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    /* Mejorar navegación para móvil */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        background: var(--bg-color);
+        border-top: 1px solid var(--border-color);
+        border-radius: 20px 20px 0 0;
+        padding: 1rem;
+        z-index: 1001;
+        backdrop-filter: blur(10px);
+    }
+    
+    .nav-menu {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .nav-item {
+        flex: 1;
+        text-align: center;
+        padding: 0.75rem 0.5rem;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        min-width: 0;
+    }
+    
+    .nav-item span {
+        font-size: 0.7rem;
+        display: block;
+        margin-top: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Ajustar contenido principal para navegación inferior */
+    .main-content {
+        margin-left: 0;
+        margin-bottom: 100px; /* Espacio para navegación inferior */
+        padding: 1rem;
+    }
+    
+    /* Ocultar elementos no esenciales en móvil */
+    .desktop-only {
+        display: none !important;
+    }
+    
+    /* Mejorar tooltips para móvil */
+    .tooltip {
+        display: none; /* Ocultar tooltips en móvil */
+    }
+    
+    /* Mejorar scrolling */
+    * {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Mejorar selects en móvil */
+    select {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1rem;
+        padding-right: 3rem;
+    }
+}
